@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#c00018">
+<title>Pra você 🥺</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  body {
+    background: linear-gradient(135deg, #ff1e3c 0%, #c00018 50%, #8a0010 100%);
+    background-size: 200% 200%;
+    animation: bgShift 8s ease infinite;
+    color: #fff;
+    position: relative;
+  }
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* corações flutuando no fundo */
+  #hearts { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .heart {
+    position: absolute;
+    bottom: -60px;
+    font-size: 28px;
+    opacity: 0.85;
+    animation: floatUp linear infinite;
+    will-change: transform;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg) scale(.8); opacity: 0; }
+    10%  { opacity: .9; }
+    90%  { opacity: .9; }
+    100% { transform: translateY(-110vh) rotate(360deg) scale(1.2); opacity: 0; }
+  }
+
+  .screen {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+  }
+  .screen.active { display: flex; animation: fadeIn .5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: scale(.96);} to {opacity:1; transform:scale(1);} }
+
+  .big-emoji {
+    font-size: 110px;
+    line-height: 1;
+    margin-bottom: 18px;
+    animation: bob 2s ease-in-out infinite;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));
+  }
+  /* moldura das figurinhas (imagens) */
+  .emoji-frame {
+    width: clamp(160px, 46vw, 230px);
+    border-radius: 28px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 4px solid rgba(255,255,255,.9);
+    box-shadow: 0 12px 30px rgba(0,0,0,.45);
+    animation: bob 2.4s ease-in-out infinite;
+    background: #ff7a1a;
+  }
+  .emoji-frame img { width: 100%; height: auto; display: block; }
+  /* figurinhas desenhadas em SVG */
+  .big-emoji-svg {
+    width: clamp(160px, 46vw, 220px);
+    height: auto;
+    margin-bottom: 18px;
+    animation: bob 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+  }
+  /* figurinha real (PNG com fundo transparente) */
+  .emoji-photo {
+    width: clamp(170px, 48vw, 225px);
+    height: auto;
+    display: block;
+    margin-bottom: 18px;
+    animation: bob 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+  }
+  @keyframes bob {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50%     { transform: translateY(-14px) rotate(3deg); }
+  }
+
+  h1 {
+    font-size: clamp(26px, 7vw, 44px);
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-shadow: 0 3px 10px rgba(0,0,0,.4);
+    line-height: 1.2;
+  }
+  .sub {
+    font-size: clamp(15px, 4.2vw, 20px);
+    font-weight: 500;
+    opacity: .95;
+    margin-bottom: 30px;
+    max-width: 420px;
+    line-height: 1.4;
+  }
+
+  .btn-row { display: flex; gap: 18px; align-items: center; justify-content: center; flex-wrap: wrap; }
+
+  .btn {
+    border: none;
+    border-radius: 50px;
+    padding: 16px 38px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0,0,0,.28);
+    transition: transform .15s ease, background .2s ease;
+  }
+  .btn:active { transform: scale(.95); }
+  .btn-yes {
+    background: #fff;
+    color: #d10018;
+  }
+  .btn-yes:hover { transform: scale(1.05); }
+  .btn-no {
+    background: rgba(0,0,0,.35);
+    color: #fff;
+    border: 2px solid rgba(255,255,255,.6);
+  }
+  .teasing { font-size: 14px; opacity: .9; margin-top: 18px; min-height: 20px; font-weight: 600; }
+
+  /* tela do formulário */
+  .card {
+    background: rgba(255,255,255,.12);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 22px;
+    padding: 26px 22px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.3);
+  }
+  .field { text-align: left; margin-bottom: 22px; }
+  .field label { display: block; font-weight: 700; font-size: 16px; margin-bottom: 10px; }
+  input[type="datetime-local"] {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    font-size: 16px;
+    color: #c00018;
+    font-weight: 600;
+    background: #fff;
+    cursor: pointer;
+  }
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator { cursor: pointer; }
+  .food-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .food {
+    background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.35);
+    border-radius: 14px;
+    padding: 14px 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #fff;
+    transition: all .15s ease;
+  }
+  .food:active { transform: scale(.96); }
+  .food.selected {
+    background: #fff;
+    color: #d10018;
+    border-color: #fff;
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  }
+  .food-emoji { font-size: 26px; display: block; margin-bottom: 4px; }
+
+  .send-btn {
+    margin-top: 8px;
+    width: 100%;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 16px;
+    font-size: 19px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0,0,0,.28);
+    transition: transform .15s ease, opacity .2s;
+  }
+  .send-btn:active { transform: scale(.97); }
+  .send-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  .next-btn {
+    margin-top: 26px;
+    background: #fff;
+    color: #d10018;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 44px;
+    font-size: 19px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 22px rgba(0,0,0,.28);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.06);} }
+
+  .hint { font-size: 12px; opacity: .8; margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<div id="hearts"></div>
+
+<!-- TELA 1: o convite -->
+<section class="screen active" id="screen1">
+  <svg class="big-emoji-svg" id="emoji1" viewBox="0 0 240 250" xmlns="http://www.w3.org/2000/svg" aria-label="implorando">
+    <defs>
+      <radialGradient id="faceY1" cx="42%" cy="32%" r="75%">
+        <stop offset="0%" stop-color="#FFE873"/>
+        <stop offset="55%" stop-color="#FBC23C"/>
+        <stop offset="100%" stop-color="#EE9F26"/>
+      </radialGradient>
+      <radialGradient id="irisB1" cx="50%" cy="32%" r="70%">
+        <stop offset="0%" stop-color="#A9E0FF"/>
+        <stop offset="45%" stop-color="#3F9EE0"/>
+        <stop offset="100%" stop-color="#13598F"/>
+      </radialGradient>
+    </defs>
+    <!-- rosto -->
+    <ellipse cx="120" cy="112" rx="100" ry="96" fill="url(#faceY1)"/>
+    <ellipse cx="120" cy="112" rx="100" ry="96" fill="none" stroke="#E2941F" stroke-width="2.5" opacity=".5"/>
+    <!-- blush -->
+    <ellipse cx="56" cy="146" rx="23" ry="13" fill="#FF7E94" opacity=".5"/>
+    <ellipse cx="184" cy="146" rx="23" ry="13" fill="#FF7E94" opacity=".5"/>
+    <!-- olhos -->
+    <g>
+      <ellipse cx="84" cy="112" rx="31" ry="36" fill="#fff"/>
+      <circle cx="84" cy="118" r="24" fill="url(#irisB1)"/>
+      <circle cx="84" cy="121" r="12.5" fill="#0E2233"/>
+      <circle cx="74" cy="106" r="9.5" fill="#fff"/>
+      <circle cx="94" cy="128" r="5" fill="#fff" opacity=".95"/>
+      <path d="M58 128 Q84 150 110 128" fill="none" stroke="#E2941F" stroke-width="2.5" opacity=".4"/>
+    </g>
+    <g>
+      <ellipse cx="156" cy="112" rx="31" ry="36" fill="#fff"/>
+      <circle cx="156" cy="118" r="24" fill="url(#irisB1)"/>
+      <circle cx="156" cy="121" r="12.5" fill="#0E2233"/>
+      <circle cx="146" cy="106" r="9.5" fill="#fff"/>
+      <circle cx="166" cy="128" r="5" fill="#fff" opacity=".95"/>
+      <path d="M130 128 Q156 150 182 128" fill="none" stroke="#E2941F" stroke-width="2.5" opacity=".4"/>
+    </g>
+    <!-- sobrancelhas tristes (telhadinho) -->
+    <path d="M54 90 Q80 73 108 71" fill="none" stroke="#6B4A1F" stroke-width="6" stroke-linecap="round"/>
+    <path d="M186 90 Q160 73 132 71" fill="none" stroke="#6B4A1F" stroke-width="6" stroke-linecap="round"/>
+    <!-- boca (bico tristinho) -->
+    <path d="M103 172 Q120 156 137 172" fill="none" stroke="#6B3F17" stroke-width="5" stroke-linecap="round"/>
+    <path d="M112 168 Q120 160 128 168 Q120 174 112 168 Z" fill="#9A5A22"/>
+    <!-- maozinhas juntas implorando (na frente do queixo) -->
+    <g>
+      <path d="M120 180 C140 186 152 208 146 228 C142 238 98 238 94 228 C88 208 100 186 120 180 Z" fill="url(#faceY1)" stroke="#D98A1E" stroke-width="2.5"/>
+      <path d="M120 183 L120 230" stroke="#C9821C" stroke-width="2.5" stroke-linecap="round" opacity=".55"/>
+      <path d="M117 184 Q106 197 102 214" fill="none" stroke="#C9821C" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+      <path d="M123 184 Q134 197 138 214" fill="none" stroke="#C9821C" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+      <ellipse cx="111" cy="214" rx="16" ry="8" fill="url(#faceY1)" stroke="#D98A1E" stroke-width="2.5" transform="rotate(-20 111 214)"/>
+      <ellipse cx="129" cy="214" rx="16" ry="8" fill="url(#faceY1)" stroke="#D98A1E" stroke-width="2.5" transform="rotate(20 129 214)"/>
+    </g>
+  </svg>
+  <h1 id="q1">Vc aceita sair comigo?</h1>
+  <p class="sub" id="sub1">por favorzinho... 🙏💖</p>
+  <div class="btn-row">
+    <button class="btn btn-yes" id="yesBtn">Sim 💖</button>
+    <button class="btn btn-no" id="noBtn">Não</button>
+  </div>
+  <div class="teasing" id="teasing"></div>
+</section>
+
+<!-- TELA 2: a virada -->
+<section class="screen" id="screen2">
+  <svg class="big-emoji-svg" id="emoji2" viewBox="0 0 240 250" xmlns="http://www.w3.org/2000/svg" aria-label="sapeca">
+    <defs>
+      <radialGradient id="faceY2" cx="44%" cy="30%" r="78%">
+        <stop offset="0%" stop-color="#FFE873"/>
+        <stop offset="55%" stop-color="#FBC23C"/>
+        <stop offset="100%" stop-color="#EE9F26"/>
+      </radialGradient>
+      <radialGradient id="irisB2" cx="50%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="#A9E0FF"/>
+        <stop offset="45%" stop-color="#3F9EE0"/>
+        <stop offset="100%" stop-color="#13598F"/>
+      </radialGradient>
+      <radialGradient id="roseR2" cx="42%" cy="35%" r="70%">
+        <stop offset="0%" stop-color="#F2607A"/>
+        <stop offset="55%" stop-color="#C0142A"/>
+        <stop offset="100%" stop-color="#7E0A1A"/>
+      </radialGradient>
+    </defs>
+    <!-- rosto (ovinho) -->
+    <ellipse cx="122" cy="122" rx="84" ry="96" fill="url(#faceY2)"/>
+    <ellipse cx="122" cy="122" rx="84" ry="96" fill="none" stroke="#E2941F" stroke-width="2.5" opacity=".5"/>
+    <!-- blush -->
+    <ellipse cx="64" cy="150" rx="20" ry="11" fill="#FF7E94" opacity=".4"/>
+    <ellipse cx="182" cy="150" rx="20" ry="11" fill="#FF7E94" opacity=".4"/>
+    <!-- olhos meio fechados (debochado) -->
+    <g>
+      <path d="M72 120 Q94 110 116 120 Q94 132 72 120 Z" fill="#fff"/>
+      <circle cx="94" cy="124" r="10" fill="url(#irisB2)"/>
+      <circle cx="94" cy="125" r="5" fill="#0E2233"/>
+      <circle cx="90" cy="121" r="2.6" fill="#fff"/>
+      <path d="M70 118 Q94 107 118 119" fill="none" stroke="#6B4A1F" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+    <g>
+      <path d="M128 120 Q150 110 172 120 Q150 132 128 120 Z" fill="#fff"/>
+      <circle cx="150" cy="124" r="10" fill="url(#irisB2)"/>
+      <circle cx="150" cy="125" r="5" fill="#0E2233"/>
+      <circle cx="146" cy="121" r="2.6" fill="#fff"/>
+      <path d="M126 118 Q150 107 174 119" fill="none" stroke="#6B4A1F" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+    <!-- sobrancelhas: uma erguida (debochada) -->
+    <path d="M70 100 Q94 94 115 99" fill="none" stroke="#5A3A12" stroke-width="5.5" stroke-linecap="round"/>
+    <path d="M130 90 Q152 79 175 91" fill="none" stroke="#5A3A12" stroke-width="5.5" stroke-linecap="round"/>
+    <!-- sorriso de canto (smirk) com dentinhos -->
+    <path d="M150 156 Q124 178 98 160 Q122 170 148 156 Z" fill="#fff"/>
+    <path d="M96 158 Q122 180 154 152" fill="none" stroke="#6B3F17" stroke-width="5" stroke-linecap="round"/>
+    <!-- brilho debochado -->
+    <path d="M152 145 L154.5 151 L152 157 L149.5 151 Z M145 151 L151 148.5 L159 151 L151 153.5 Z" fill="#fff"/>
+    <!-- rosa sendo segurada perto da boca -->
+    <g>
+      <path d="M64 168 Q52 190 50 210" fill="none" stroke="#2E7D32" stroke-width="5" stroke-linecap="round"/>
+      <path d="M56 186 Q40 180 36 191 Q49 199 58 190 Z" fill="#3FA63F" stroke="#2E7D32" stroke-width="1.2"/>
+      <path d="M58 200 Q72 194 75 205 Q62 212 55 202 Z" fill="#3FA63F" stroke="#2E7D32" stroke-width="1.2"/>
+      <!-- mãozinha segurando -->
+      <ellipse cx="52" cy="216" rx="16" ry="13" fill="url(#faceY2)" stroke="#D98A1E" stroke-width="2.2"/>
+      <path d="M46 208 L46 220 M52 208 L52 221 M58 209 L58 219" stroke="#C9821C" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>
+      <path d="M40 212 Q52 204 64 212" fill="none" stroke="#D98A1E" stroke-width="3" stroke-linecap="round"/>
+      <!-- flor -->
+      <g>
+        <ellipse cx="66" cy="138" rx="9" ry="13" fill="#C0142A" stroke="#7E0A1A" stroke-width="1.4" transform="rotate(0 66 150)"/>
+        <ellipse cx="66" cy="138" rx="9" ry="13" fill="#C0142A" stroke="#7E0A1A" stroke-width="1.4" transform="rotate(60 66 150)"/>
+        <ellipse cx="66" cy="138" rx="9" ry="13" fill="#C0142A" stroke="#7E0A1A" stroke-width="1.4" transform="rotate(120 66 150)"/>
+        <ellipse cx="66" cy="138" rx="9" ry="13" fill="#C0142A" stroke="#7E0A1A" stroke-width="1.4" transform="rotate(180 66 150)"/>
+        <ellipse cx="66" cy="138" rx="9" ry="13" fill="#C0142A" stroke="#7E0A1A" stroke-width="1.4" transform="rotate(240 66 150)"/>
+        <ellipse cx="66" cy="138" rx="9" ry="13" fill="#C0142A" stroke="#7E0A1A" stroke-width="1.4" transform="rotate(300 66 150)"/>
+        <circle cx="66" cy="150" r="11" fill="url(#roseR2)"/>
+        <path d="M59 150 Q66 141 73 150 Q66 159 61 152" fill="none" stroke="#F2607A" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="62" cy="146" r="2.6" fill="#F7A0B2" opacity=".85"/>
+      </g>
+    </g>
+  </svg>
+  <h1>Vc disse sim?</h1>
+  <p class="sub">estava esperando vc dizer não rsrs 😈</p>
+  <button class="next-btn" id="nextBtn">Próximo →</button>
+</section>
+
+<!-- TELA 3: formulário -->
+<section class="screen" id="screen3">
+  <h1 style="font-size:clamp(24px,6.5vw,38px); margin-bottom:18px;">Qual o melhor dia? 📅</h1>
+  <div class="card">
+    <div class="field">
+      <label>🚗 Quando eu posso te buscar?</label>
+      <input type="datetime-local" id="quando">
+    </div>
+    <div class="field">
+      <label>🍽️ O que vc quer comer?</label>
+      <div class="food-grid">
+        <button class="food" data-food="🍔 Hambúrguer"><span class="food-emoji">🍔</span>Hambúrguer</button>
+        <button class="food" data-food="🍣 Sushi"><span class="food-emoji">🍣</span>Sushi</button>
+        <button class="food" data-food="🍝 Massas"><span class="food-emoji">🍝</span>Massas</button>
+        <button class="food" data-food="🍕 Pizza"><span class="food-emoji">🍕</span>Pizza</button>
+        <button class="food" data-food="✨ Outros" style="grid-column:1/3;"><span class="food-emoji">✨</span>Outros</button>
+      </div>
+    </div>
+    <button class="send-btn" id="sendBtn" disabled>Enviar no WhatsApp 💬</button>
+    <p class="hint">vai abrir o WhatsApp com a mensagem prontinha 😉</p>
+  </div>
+</section>
+
+<script>
+  /* ---------- corações no fundo ---------- */
+  (function makeHearts(){
+    const wrap = document.getElementById('hearts');
+    const emojis = ['❤️','💖','💘','💕','💗','🩷'];
+    const n = 22;
+    for (let i = 0; i < n; i++){
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      h.style.left = Math.random()*100 + 'vw';
+      h.style.fontSize = (18 + Math.random()*26) + 'px';
+      h.style.animationDuration = (6 + Math.random()*8) + 's';
+      h.style.animationDelay = (Math.random()*8) + 's';
+      wrap.appendChild(h);
+    }
+  })();
+
+  /* ---------- usa a figurinha REAL se existir na pasta (senão fica o SVG) ---------- */
+  (function trocarPorFoto(){
+    function tentar(svgId, base){
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+      const exts = ['.png', '.jpg', '.jpeg', '.webp'];
+      let i = 0;
+      const img = new Image();
+      img.className = 'emoji-photo';
+      img.alt = base;
+      img.onload = function(){
+        svg.parentNode.insertBefore(img, svg);
+        svg.style.display = 'none';
+      };
+      img.onerror = function(){
+        i++;
+        if (i < exts.length) img.src = base + exts[i];
+        // se não achar nenhuma, mantém o desenho SVG
+      };
+      img.src = base + exts[0];
+    }
+    tentar('emoji1', 'implorando');
+    tentar('emoji2', 'sapeca');
+  })();
+
+  /* ---------- botão NÃO fujão ---------- */
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  const teasing = document.getElementById('teasing');
+  const frases = [
+    'kkkk não adianta 😜',
+    'tenta de novo vai 😏',
+    'esse botão é escorregadio 🫣',
+    'o destino quer que vc clique no Sim 💖',
+    'desiste, vai ser mais fácil kk',
+    'tá com medo? 🥺',
+    'só tem uma resposta certa aqui 👀'
+  ];
+  let count = 0;
+  let floating = false;
+
+  function fugir(){
+    if (!floating){
+      // congela o tamanho do botão e passa pra posição fixa
+      const r = noBtn.getBoundingClientRect();
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = r.left + 'px';
+      noBtn.style.top = r.top + 'px';
+      noBtn.style.margin = '0';
+      floating = true;
+    }
+    const w = noBtn.offsetWidth, h = noBtn.offsetHeight;
+    const pad = 12;
+    const maxX = window.innerWidth - w - pad;
+    const maxY = window.innerHeight - h - pad;
+    const x = pad + Math.random() * (maxX - pad);
+    const y = pad + Math.random() * (maxY - pad);
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+
+    // cresce o Sim a cada fuga, ate cobrir a tela inteira
+    count++;
+    const scale = Math.min(Math.pow(1.45, count), 30);
+    yesBtn.style.transform = 'scale(' + scale + ')';
+    yesBtn.style.position = 'relative';
+    yesBtn.style.zIndex = '50'; // fica por cima do "Não" quando cresce
+    teasing.textContent = frases[Math.min(count-1, frases.length-1)];
+  }
+
+  // PC: foge ao aproximar o mouse
+  noBtn.addEventListener('mouseover', fugir);
+  noBtn.addEventListener('mousemove', fugir);
+  // celular/PC: foge ao tentar tocar/clicar
+  noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); fugir(); }, {passive:false});
+  noBtn.addEventListener('click', function(e){ e.preventDefault(); fugir(); });
+  // foge também se o dedo/mouse chega perto na tela
+  document.getElementById('screen1').addEventListener('pointermove', function(e){
+    if (!floating) return;
+    const r = noBtn.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+    if (dist < 90) fugir();
+  });
+
+  /* ---------- SIM -> tela 2 ---------- */
+  yesBtn.addEventListener('click', function(){
+    showScreen('screen2');
+  });
+
+  /* ---------- Próximo -> tela 3 ---------- */
+  document.getElementById('nextBtn').addEventListener('click', function(){
+    showScreen('screen3');
+    // libera o scroll no form caso a tela seja pequena
+    document.documentElement.style.overflow = 'auto';
+  });
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  /* ---------- formulário ---------- */
+  let comida = null;
+  const sendBtn = document.getElementById('sendBtn');
+  const quando = document.getElementById('quando');
+
+  document.querySelectorAll('.food').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.food').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      comida = b.dataset.food;
+      checar();
+    });
+  });
+  quando.addEventListener('change', checar);
+  quando.addEventListener('input', checar);
+  // abre o seletor ao clicar em qualquer lugar do campo (nao so no iconezinho)
+  function abrirSeletor(){ try { quando.showPicker(); } catch(e){} }
+  quando.addEventListener('click', abrirSeletor);
+  quando.addEventListener('focus', abrirSeletor);
+
+  function checar(){
+    sendBtn.disabled = !(quando.value && comida);
+  }
+
+  function formatarData(v){
+    // v = "2026-06-20T19:30"
+    if (!v) return '';
+    const [d, t] = v.split('T');
+    const [ano, mes, dia] = d.split('-');
+    return `${dia}/${mes}/${ano} às ${t}h`;
+  }
+
+  sendBtn.addEventListener('click', function(){
+    const numero = '5562982412403'; // 55 (BR) + 62 + número
+    const msg =
+      '💖 Eu disse SIM! 💖\n\n' +
+      '🚗 Pode me buscar: ' + formatarData(quando.value) + '\n' +
+      '🍴 Quero comer: ' + comida + '\n\n' +
+      'estou ansiosa para te ver 🥰';
+    const url = 'https://wa.me/' + numero + '?text=' + encodeURIComponent(msg);
+    window.location.href = url;
+  });
+</script>
+</body>
+</html>

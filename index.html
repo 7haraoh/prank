@@ -448,6 +448,7 @@
   ];
   let count = 0;
   let floating = false;
+  let ultimoCrescimento = 0;
 
   function fugir(){
     if (!floating){
@@ -469,9 +470,13 @@
     noBtn.style.left = x + 'px';
     noBtn.style.top = y + 'px';
 
-    // cresce o Sim a cada fuga, ate cobrir a tela inteira
+    // cresce o Sim aos pouquinhos (no maximo 1x a cada 350ms, pra nao disparar com o mouse)
+    const agora = Date.now();
+    if (agora - ultimoCrescimento < 350) return;
+    ultimoCrescimento = agora;
     count++;
-    const scale = Math.min(Math.pow(1.45, count), 30);
+    const scale = Math.min(1 + count * 0.12, 30);
+    yesBtn.style.transition = 'transform .6s ease-out, background .2s ease';
     yesBtn.style.transform = 'scale(' + scale + ')';
     yesBtn.style.position = 'relative';
     yesBtn.style.zIndex = '50'; // acima do texto, mas ABAIXO do "Não" (z-index 100)
